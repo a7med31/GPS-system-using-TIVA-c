@@ -34,7 +34,7 @@ int flag, len, first;
 int lat_coordinate, long_coordinate;
 float lat_deg, long_deg, c_lat, c_long, p_lat, p_long, f_lat, f_long, s_lat, s_long, total_distance, dtg, delta_view, lat_float, long_float;
 int lat_coordinate, long_coordinate;
-int flag, lem, first;
+int flag, len, first;
 
 int main()
 {
