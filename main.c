@@ -1,9 +1,14 @@
 #include "tm4c123gh6pm.h"
 #include "stdint.h"
 #include "stdlib.h"
+
 void PortF_Init(void);
 
-int main(){
+int main()
+{
+    
+}
+
 void PortF_Init(void)
 {
     SYSCTL_RCGCGPIO_R |= 0X20;                      //start clock
@@ -15,4 +20,4 @@ void PortF_Init(void)
     GPIO_PORTF_DIR_R |= 0x0E;                       //3 output LEDs
     GPIO_PORTF_DATA_R &= 0X0E;                      //leds are off initially
 }
-}
+
