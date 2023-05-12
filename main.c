@@ -4,6 +4,7 @@
 #include "fpu.h"
 #include "string.h"
 #include "math.h"
+
 //FPU 
 #define NVIC_CPAC               0xE000ED88  // Coprocessor Access Control
 #define HWREG(x)                (*((volatile uint32_t *)(x)))
@@ -31,7 +32,10 @@ void ftoa(float n, char* res, int afterpoint);
 char latitude[100], longitude[100], command[100];
 int flag, len, first;
 int lat_coordinate, long_coordinate;
-float lat_deg, long_deg;
+float lat_deg, long_deg, c_lat, c_long, p_lat, p_long, f_lat, f_long, s_lat, s_long, total_distance, dtg, delta_view, lat_float, long_float;
+int lat_coordinate, long_coordinate;
+int flag, lem, first;
+
 int main()
 {
     
@@ -221,11 +225,7 @@ float torad(int cor, float deg) {
 }
 //Check distance func or use a better function
 float delta(float p_lat,float p_long ,float c_lat,float c_long) {
-    double D;   
-    //new function
-    //float a = pow(sin((c_lat - p_lat) / 2), 2) + cos(c_lat) * cos(p_lat) * pow(sin((c_long - p_long) / 2), 2);
-    //double c = 2 * atan2(sqrt(a), sqrt((1 - a)));
-    
+    double D;    
     float a = pow(sin((c_lat - p_lat) / 2), 2) + pow(sin((c_long - p_long) / 2), 2) * cos(c_lat) * cos(p_lat);
     float c = 2 * asin(sqrt(a));
     D = 6371 * c * 1000; 
@@ -278,7 +278,6 @@ void ftoa(float n, char* res, int afterpoint) //Check number of floating digits
     // check for display option after point
     if (afterpoint != 0) {
         res[i] = '.'; // add dot
-
         // Get the value of fraction part upto given no.
         // of points after dot. The third parameter
         // is needed to handle cases like 233.007
