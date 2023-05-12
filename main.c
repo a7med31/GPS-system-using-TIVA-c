@@ -20,6 +20,13 @@ void UART2_Init(void);
 char UART2_read(void);
 void getCommand(char*str);
 void getCoordinates(void);
+float delta(float p_lat, float p_long, float c_lat, float c_long);
+float torad(int cor, float deg);
+void printflo(float x);
+void reverse(char* str, int len);
+int intToStr(int x, char str[], int d);
+void ftoa(float n, char* res, int afterpoint);
+
 //global variables
 char latitude[100], longitude[100], command[100];
 int flag, len, first;
@@ -44,9 +51,7 @@ void PortF_Init(void)
 
 void FPUEnable(void)
 {
-    //
     // Enable the coprocessors used by the floating-point unit.
-    //
     HWREG(NVIC_CPAC) = ((HWREG(NVIC_CPAC) &
                          ~(NVIC_CPAC_CP10_M | NVIC_CPAC_CP11_M)) |
                         NVIC_CPAC_CP10_FULL | NVIC_CPAC_CP11_FULL);
@@ -189,34 +194,13 @@ void getCoordinates(void)
     //coordinates
     substring(str, latitude, 0, 2);
     lat_coordinate = atoi(str);
-    // UART0_write('\n');
-    // printflo(lat_coordinate);
-    // UART0_write('\n');
     substring(str, longitude, 0, 3);
     long_coordinate = atoi(str);
-    // UART0_write('\n');
-    // printflo(long_coordinate);
-    // UART0_write('\n');
-
     //degrees
     substring(str, latitude, 2, 8);
-    //UART0_write('\n');
-    //printStr(str);
     lat_deg = atof(str);
-
-    // UART0_write('\n');
-    // printflo(lat_deg);
-    // UART0_write('\n');
-
     substring(str, longitude, 3, 8);
-    //UART0_write('\n');
-    //printStr(str);
     long_deg = atof(str);
-
-    // UART0_write('\n');
-    // printflo(long_deg);
-    // UART0_write('\n');
-
 }
 char* substring(char *destination, const char *source, int beg, int n)
 {
@@ -230,4 +214,79 @@ char* substring(char *destination, const char *source, int beg, int n)
     }
     *destination = '\0';
     return destination;
+}
+float torad(int cor, float deg) {
+    float PI = 3.141592653589793;
+    return ((cor + deg / 60) * (PI / 180));
+}
+//Check distance func or use a better function
+float delta(float p_lat,float p_long ,float c_lat,float c_long) {
+    double D;   
+    //new function
+    //float a = pow(sin((c_lat - p_lat) / 2), 2) + cos(c_lat) * cos(p_lat) * pow(sin((c_long - p_long) / 2), 2);
+    //double c = 2 * atan2(sqrt(a), sqrt((1 - a)));
+    
+    float a = pow(sin((c_lat - p_lat) / 2), 2) + pow(sin((c_long - p_long) / 2), 2) * cos(c_lat) * cos(p_lat);
+    float c = 2 * asin(sqrt(a));
+    D = 6371 * c * 1000; 
+    return D;
+}
+void printflo(float x) {
+    char res[20];
+    ftoa(x, res, 5); //To change to check sensitivity, 4 is the number of floating points
+    printStr(res);
+}
+void reverse(char* str, int len)
+{
+    int i = 0, j = len - 1, temp;
+    while (i < j) {
+        temp = str[i];
+        str[i] = str[j];
+        str[j] = temp;
+        i++;
+        j--;
+    }
+}
+int intToStr(int x, char str[], int d)
+{
+    int i = 0;
+    while (x) {
+        str[i++] = (x % 10) + '0';
+        x = x / 10;
+    }
+
+    // If number of digits required is more, then
+    // add 0s at the beginning
+    while (i < d)
+        str[i++] = '0';
+
+    reverse(str, i);
+    str[i] = '\0';
+    return i;
+}
+void ftoa(float n, char* res, int afterpoint) //Check number of floating digits
+{
+    // Extract integer part
+    int ipart = (int)n;
+
+    // Extract floating part
+    float fpart = n - (float)ipart;
+
+    // convert integer part to string
+    int i = intToStr(ipart, res, 0);
+
+    // check for display option after point
+    if (afterpoint != 0) {
+        res[i] = '.'; // add dot
+
+        // Get the value of fraction part upto given no.
+        // of points after dot. The third parameter
+        // is needed to handle cases like 233.007
+        fpart = fpart * pow(10, afterpoint);
+
+        intToStr((int)fpart, res + i + 1, afterpoint);
+    }
+}
+float input_latlong(float latlong){
+    return torad((int)latlong, floor(100000*((latlong - (int)latlong) * 60))/100000);
 }
