@@ -420,6 +420,11 @@
               <FileType>5</FileType>
               <FilePath>.\tm4c123gh6pm.h</FilePath>
             </File>
+            <File>
+              <FileName>fpu.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\fpu.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
