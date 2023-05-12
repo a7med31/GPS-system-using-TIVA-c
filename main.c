@@ -127,7 +127,6 @@ void getCommand(char*str)
     int i;
     for (i = 0; i < 100; i++)
     {
-        //c = UART0_read();
         c = UART2_read();      //Reading data from GPS Module
         if(c == '$')
         {
@@ -136,7 +135,6 @@ void getCommand(char*str)
         }
         else
             str[i] = c; 
-        // UART0_write(c);  //Echoing the GPS output
     }
 }
 void parse(void)
@@ -153,21 +151,16 @@ for (i = 0; i < 5; i++){
     if ((strcmp(check, "GPRMC")) != 0)
     {
         flag = 1;
-        // printStr("Error1");
         return;
     }
     if (command[16] != 'A')
 		{
-        // printStr("Error2");
         flag = 1;
-
         return;
     }
     if (command[17] != ',')
 		{
-        // printStr("Error3");
         flag = 1;
-
         return;
     }
     first = 1; //Moved the first flag into the parse funtion to always trigger after finding the right format the first time
@@ -223,7 +216,6 @@ float torad(int cor, float deg) {
     float PI = 3.141592653589793;
     return ((cor + deg / 60) * (PI / 180));
 }
-//Check distance func or use a better function
 float delta(float p_lat,float p_long ,float c_lat,float c_long) {
     double D;    
     float a = pow(sin((c_lat - p_lat) / 2), 2) + pow(sin((c_long - p_long) / 2), 2) * cos(c_lat) * cos(p_lat);
@@ -233,7 +225,7 @@ float delta(float p_lat,float p_long ,float c_lat,float c_long) {
 }
 void printflo(float x) {
     char res[20];
-    ftoa(x, res, 5); //To change to check sensitivity, 4 is the number of floating points
+    ftoa(x, res, 5);
     printStr(res);
 }
 void reverse(char* str, int len)
@@ -254,9 +246,6 @@ int intToStr(int x, char str[], int d)
         str[i++] = (x % 10) + '0';
         x = x / 10;
     }
-
-    // If number of digits required is more, then
-    // add 0s at the beginning
     while (i < d)
         str[i++] = '0';
 
@@ -266,23 +255,12 @@ int intToStr(int x, char str[], int d)
 }
 void ftoa(float n, char* res, int afterpoint) //Check number of floating digits
 {
-    // Extract integer part
     int ipart = (int)n;
-
-    // Extract floating part
     float fpart = n - (float)ipart;
-
-    // convert integer part to string
     int i = intToStr(ipart, res, 0);
-
-    // check for display option after point
     if (afterpoint != 0) {
         res[i] = '.'; // add dot
-        // Get the value of fraction part upto given no.
-        // of points after dot. The third parameter
-        // is needed to handle cases like 233.007
         fpart = fpart * pow(10, afterpoint);
-
         intToStr((int)fpart, res + i + 1, afterpoint);
     }
 }
