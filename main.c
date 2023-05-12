@@ -3,7 +3,7 @@
 #include "stdlib.h"
 #include "fpu.h"
 #include "string.h"
-
+#include "math.h"
 //FPU 
 #define NVIC_CPAC               0xE000ED88  // Coprocessor Access Control
 #define HWREG(x)                (*((volatile uint32_t *)(x)))
@@ -18,12 +18,13 @@ char* substring(char *destination, const char *source, int beg, int n);
 void UART0_Init(void);
 void UART2_Init(void);
 char UART2_read(void);
-
-
+void getCommand(char*str);
+void getCoordinates(void);
 //global variables
 char latitude[100], longitude[100], command[100];
 int flag, len, first;
-
+int lat_coordinate, long_coordinate;
+float lat_deg, long_deg;
 int main()
 {
     
@@ -111,7 +112,24 @@ void printStr(char *str)
         i++;
     }
 }
-
+void getCommand(char*str)
+{
+    char c;
+    int i;
+    for (i = 0; i < 100; i++)
+    {
+        //c = UART0_read();
+        c = UART2_read();      //Reading data from GPS Module
+        if(c == '$')
+        {
+            len = i;
+            break;
+        }
+        else
+            str[i] = c; 
+        // UART0_write(c);  //Echoing the GPS output
+    }
+}
 void parse(void)
 {
     char check[100];
@@ -157,7 +175,49 @@ for (i = 0; i < 5; i++){
         j += 1;
     }
 }
+void getCoordinates(void)
+{
+    char str[15];
 
+    parse();
+    lat_float = atof(latitude);
+    long_float = atof(longitude);
+  
+    if (flag == 1)
+        return;
+
+    //coordinates
+    substring(str, latitude, 0, 2);
+    lat_coordinate = atoi(str);
+    // UART0_write('\n');
+    // printflo(lat_coordinate);
+    // UART0_write('\n');
+    substring(str, longitude, 0, 3);
+    long_coordinate = atoi(str);
+    // UART0_write('\n');
+    // printflo(long_coordinate);
+    // UART0_write('\n');
+
+    //degrees
+    substring(str, latitude, 2, 8);
+    //UART0_write('\n');
+    //printStr(str);
+    lat_deg = atof(str);
+
+    // UART0_write('\n');
+    // printflo(lat_deg);
+    // UART0_write('\n');
+
+    substring(str, longitude, 3, 8);
+    //UART0_write('\n');
+    //printStr(str);
+    long_deg = atof(str);
+
+    // UART0_write('\n');
+    // printflo(long_deg);
+    // UART0_write('\n');
+
+}
 char* substring(char *destination, const char *source, int beg, int n)
 {
     while (n > 0)
